@@ -33,7 +33,7 @@ int main() {
     char taw[] = "My namu is cute astraea O.O";
     char eaw[] = "Hewwo mommi";
     std::cout << "char* equality: " << std::boolalpha << (raw == taw) << "\n";
-    std::cout << "char* inequality:" << std::boolalpha << (raw != taw) << "\n";
+    std::cout << "char* inequality: " << std::boolalpha << (raw != taw) << "\n";
     std::cout << "char* supposing equality: " << std::boolalpha << (raw == eaw) << "\n";
     // add string: s.concat(t) will have <s><t>, t.concat(s) is <t><s>
     // in std::string, operator overloading will have them functions properly (==, +)
