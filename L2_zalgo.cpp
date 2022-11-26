@@ -6,7 +6,51 @@
 
 #define TERMINAL ("$")
 
-//adapted from https://www.geeksforgeeks.org/z-algorithm-linear-time-pattern-searching-algorithm/
+int* get_zvals(std::string&P, std::string& T);
+
+int main(int argc, char** argv) {
+    /*
+    naive approach 
+    pros: easy to implement, correctness (easy to debug)
+    cons: slow to compute (time complexity: (# of alignments) * (cost of alignment))
+    in the naive approach, ((m-n+1) * n) where m >> n, will have O(m * n) where
+    m = len(T), n = len(P).
+    For real life problem like genome reading, len(T) ~ 3 billion compare with len(P) ~ 100 - 150 nuclides
+
+    z-algorithm: assumption-less solution to solve exact pattern matching on O(m+n) time bounding.
+    z-value: given str S, Z_i(S) is the length of the longest substring in S starting at position i that matches
+    a **prefix** of S
+
+    e.g. S= TTCGTTAGCG. Z_1(S) = len("T") = 1, Z(2) = len("") = 0, Z(3) = 0, Z(4) = len("TT") = 2
+    Z(5) = len("T") = 1, everything else is 0.
+    by definition, Z_0(S) = len(S)
+
+    explicitly comparing characters: for |S|-1 substrings, the number of comparisons are:
+    1+2+3+...+(|S|-1) = O(|S|^2)
+
+    However, z-value are self-indexing (self-referencing),
+    let S = P$T where $ means terminal character that exists outside of the alphabet (in constr P & T)
+    compute Z(S) = [NA, 1, 0, 2, 2, 2, 1], for those, i=3,4,5 are matched substring of T to P
+    because Z(S)[i] == |P| for all i there, use $ to tell the impossibility of matching before and at index of $
+    in the concatenated string S, minus (len(S)+1) to locate the real string T.
+    */ 
+
+   // z-values are prefix-comparisons, thus by definition, a repetitive segment has recurring z-value
+   // but we need to make sure the next position is a closure character (differ)
+   // [ABC$ABC] has recurring z-val but [AAA$AAAA] does not in the first AAA after $
+    std::string P = "AA";
+    std::string T = "AAAA";
+    int* zs = get_zvals(P, T);
+    std::cout << "[";
+    for(int i = 0; i < P.length()+1+T.length(); i++) {
+        std::cout << zs[i] << ", ";
+    }
+    std::cout << "]\n";
+    delete[] zs;
+    return 0;
+}
+
+//inspired from https://www.geeksforgeeks.org/z-algorithm-linear-time-pattern-searching-algorithm/
 int* get_zvals(std::string& P, std::string& T) {
     std::string S = P + TERMINAL + T;
     int* zvals = new int[S.length()]; //the zvals array for S
@@ -72,46 +116,4 @@ int* get_zvals(std::string& P, std::string& T) {
         }
     }
     return zvals;
-}
-
-int main(int argc, char** argv) {
-    /*
-    naive approach 
-    pros: easy to implement, correctness (easy to debug)
-    cons: slow to compute (time complexity: (# of alignments) * (cost of alignment))
-    in the naive approach, ((m-n+1) * n) where m >> n, will have O(m * n) where
-    m = len(T), n = len(P).
-    For real life problem like genome reading, len(T) ~ 3 billion compare with len(P) ~ 100 - 150 nuclides
-
-    z-algorithm: assumption-less solution to solve exact pattern matching on O(m+n) time bounding.
-    z-value: given str S, Z_i(S) is the length of the longest substring in S starting at position i that matches
-    a **prefix** of S
-
-    e.g. S= TTCGTTAGCG. Z_1(S) = len("T") = 1, Z(2) = len("") = 0, Z(3) = 0, Z(4) = len("TT") = 2
-    Z(5) = len("T") = 1, everything else is 0.
-    by definition, Z_0(S) = len(S)
-
-    explicitly comparing characters: for |S|-1 substrings, the number of comparisons are:
-    1+2+3+...+(|S|-1) = O(|S|^2)
-
-    However, z-value are self-indexing (self-referencing),
-    let S = P$T where $ means terminal character that exists outside of the alphabet (in constr P & T)
-    compute Z(S) = [NA, 1, 0, 2, 2, 2, 1], for those, i=3,4,5 are matched substring of T to P
-    because Z(S)[i] == |P| for all i there, use $ to tell the impossibility of matching before and at index of $
-    in the concatenated string S, minus (len(S)+1) to locate the real string T.
-    */ 
-
-   // z-values are prefix-comparisons, thus by definition, a repetitive segment has recurring z-value
-   // but we need to make sure the next position is a closure character (differ)
-   // [ABC$ABC] has recurring z-val but [AAA$AAAA] does not in the first AAA after $
-    std::string P = "AA";
-    std::string T = "AAAA";
-    int* zs = get_zvals(P, T);
-    std::cout << "[";
-    for(int i = 0; i < P.length()+1+T.length(); i++) {
-        std::cout << zs[i] << ", ";
-    }
-    std::cout << "]\n";
-    delete[] zs;
-    return 0;
 }
